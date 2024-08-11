@@ -121,7 +121,8 @@
 
             // Fetch notes data from external API
             function fetchNotes() {
-                fetch('/data.json') // Replace with your API endpoint
+                // fetch('/data.json') // Replace with your API endpoint
+                fetch('https://alitarique.github.io/Sticky-Notes/data.json') // Replace with your API endpoint
                     .then(response => response.json())
                     .then(notesData => {
                         generateStickyNotes(notesData);
