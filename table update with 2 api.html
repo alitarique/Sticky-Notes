@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sticky Notes with Bootstrap Table</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .sticky-notes-container {
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 2px dashed #ddd;
+            position: relative;
+            height: 200px;
+            overflow: auto;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .sticky-note {
+            border: 1px solid #f0c340;
+            border-radius: 4px;
+            padding: 10px;
+            cursor: move;
+            position: relative;
+            width: 120px;
+            height: auto;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            word-wrap: break-word;
+            z-index: 1000;
+        }
+
+        .status-tomorrow {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .status-default {
+            background-color: #f9f79f;
+            color: black;
+        }
+
+        .table-bordered {
+            border: 2px solid #ddd;
+        }
+
+        .table-bordered td {
+            border: 1px dotted #ddd;
+            position: relative;
+            height: 150px;
+            width: 150px;
+            vertical-align: middle;
+            text-align: center;
+        }
+
+        .drag-over {
+            border: 2px dashed #000;
+        }
+
+        .table-header {
+            text-transform: capitalize;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container mt-4">
+        <h1 class="mb-4">Sticky Notes with Bootstrap Table</h1>
+
+        <!-- <div class="sticky-notes-container" id="sticky-notes-container">
+        </div> -->
+
+        <table class="table table-bordered" id="sticky-table">
+            <thead>
+                <tr id="table-header-row">
+                </tr>
+            </thead>
+            <tbody id="table-body">
+            </tbody>
+        </table>
+        <div class="sticky-notes-container" id="sticky-notes-container">
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.0.7/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const stickyNotesContainer = document.querySelector('#sticky-notes-container');
+            const tableBody = document.querySelector('#table-body');
+            const tableHeaderRow = document.querySelector('#table-header-row');
+
+            function fetchNotes() {
+                fetch('/data.json') // Replace with your API endpoint
+                    .then(response => response.json())
+                    .then(notesData => {
+                        generateStickyNotes(notesData);
+                    })
+                    .catch(error => {
+                        console.error('Error fetching notes data:', error);
+                    });
+            }
+
+            function fetchDriverData() {
+                fetch('/list-drivers.json') // Replace with your driver's API endpoint
+                    .then(response => response.json())
+                    .then(driverData => {
+                        generateTable(driverData);
+                    })
+                    .catch(error => {
+                        console.error('Error fetching driver data:', error);
+                    });
+            }
+
+            function generateStickyNotes(notes) {
+                stickyNotesContainer.innerHTML = '';
+                notes.forEach(note => {
+                    const noteDiv = document.createElement('div');
+                    noteDiv.className = 'sticky-note';
+                    noteDiv.draggable = true;
+                    noteDiv.dataset.id = note.id;
+                    noteDiv.innerHTML = `
+                        <strong>Status:</strong> ${note.status}<br>
+                        <strong>Description:</strong> ${note.description}
+                    `;
+
+                    if (note.status === 'tomorrow') {
+                        noteDiv.classList.add('status-tomorrow');
+                    } else {
+                        noteDiv.classList.add('status-default');
+                    }
+
+                    const savedPosition = getSavedPosition(note.id);
+                    if (savedPosition) {
+                        noteDiv.style.top = `${savedPosition.top}px`;
+                        noteDiv.style.left = `${savedPosition.left}px`;
+                        document.querySelector(`#${savedPosition.cellId}`).appendChild(noteDiv);
+                    } else {
+                        stickyNotesContainer.appendChild(noteDiv);
+                    }
+
+                    noteDiv.addEventListener('dragstart', (e) => {
+                        e.dataTransfer.setData('text/plain', e.target.dataset.id);
+                        e.dataTransfer.effectAllowed = 'move';
+                        e.target.style.zIndex = 1000;
+                    });
+
+                    noteDiv.addEventListener('dragend', (e) => {
+                        e.target.style.zIndex = '';
+                    });
+                });
+
+                addDragAndDropToCells();
+            }
+
+            function generateTable(drivers) {
+                tableHeaderRow.innerHTML = '';
+                tableBody.innerHTML = '';
+
+                drivers.forEach((driver, index) => {
+                    const th = document.createElement('th');
+                    th.textContent = `${driver.full_name} (${driver.phone})`;
+                    th.classList.add('table-header');
+                    tableHeaderRow.appendChild(th);
+                });
+
+                const rows = 5;
+                const columns = drivers.length;
+
+                for (let i = 0; i < rows; i++) {
+                    const tr = document.createElement('tr');
+                    for (let j = 0; j < columns; j++) {
+                        const td = document.createElement('td');
+                        td.id = `cell${i * columns + j + 1}`;
+                        td.className = 'note-container';
+                        tr.appendChild(td);
+                    }
+                    tableBody.appendChild(tr);
+                }
+            }
+
+            function addDragAndDropToCells() {
+                const tableCells = document.querySelectorAll('.note-container');
+
+                tableCells.forEach(cell => {
+                    cell.addEventListener('dragover', (e) => {
+                        e.preventDefault();
+                        e.target.classList.add('drag-over');
+                    });
+
+                    cell.addEventListener('dragleave', (e) => {
+                        e.target.classList.remove('drag-over');
+                    });
+
+                    cell.addEventListener('drop', (e) => {
+                        e.preventDefault();
+                        e.target.classList.remove('drag-over');
+
+                        const noteId = e.dataTransfer.getData('text/plain');
+                        const note = document.querySelector(`.sticky-note[data-id="${noteId}"]`);
+
+                        if (note) {
+                            const cellRect = e.target.getBoundingClientRect();
+                            const noteRect = note.getBoundingClientRect();
+
+                            const offsetX = (cellRect.width - noteRect.width) / 2;
+                            const offsetY = (cellRect.height - noteRect.height) / 2;
+
+                            note.style.left = `${offsetX}px`;
+                            note.style.top = `${offsetY}px`;
+
+                            const existingNote = e.target.querySelector('.sticky-note');
+                            if (existingNote) {
+                                existingNote.remove();
+                            }
+
+                            e.target.appendChild(note);
+
+                            savePosition(noteId, offsetY, offsetX, e.target.id);
+                        }
+                    });
+                });
+
+                stickyNotesContainer.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    e.target.classList.add('drag-over');
+                });
+
+                stickyNotesContainer.addEventListener('dragleave', (e) => {
+                    e.target.classList.remove('drag-over');
+                });
+
+                stickyNotesContainer.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    e.target.classList.remove('drag-over');
+
+                    const noteId = e.dataTransfer.getData('text/plain');
+                    const note = document.querySelector(`.sticky-note[data-id="${noteId}"]`);
+
+                    if (note) {
+                        const containerRect = stickyNotesContainer.getBoundingClientRect();
+                        const noteRect = note.getBoundingClientRect();
+
+                        const offsetX = e.clientX - containerRect.left - (noteRect.width / 2);
+                        const offsetY = e.clientY - containerRect.top - (noteRect.height / 2);
+
+                        note.style.left = `${offsetX}px`;
+                        note.style.top = `${offsetY}px`;
+
+                        stickyNotesContainer.appendChild(note);
+
+                        savePosition(noteId, offsetY, offsetX, 'sticky-notes-container');
+                    }
+                });
+            }
+
+            function savePosition(id, top, left, cellId) {
+                const savedPositions = JSON.parse(localStorage.getItem('stickyNotesPositions') || '{}');
+                savedPositions[id] = { top, left, cellId };
+                localStorage.setItem('stickyNotesPositions', JSON.stringify(savedPositions));
+            }
+
+            function getSavedPosition(id) {
+                const savedPositions = JSON.parse(localStorage.getItem('stickyNotesPositions') || '{}');
+                return savedPositions[id];
+            }
+
+            fetchDriverData();
+            fetchNotes();
+        });
+    </script>
+</body>
+
+</html>
