@@ -95,7 +95,7 @@
             const tableHeaderRow = document.querySelector('#table-header-row');
 
             function fetchNotes() {
-                fetch('/data.json') // Replace with your API endpoint
+                fetch('https://alitarique.github.io/Sticky-Notes/data.json') // Replace with your API endpoint
                     .then(response => response.json())
                     .then(notesData => {
                         generateStickyNotes(notesData);
@@ -106,7 +106,7 @@
             }
 
             function fetchDriverData() {
-                fetch('/list-drivers.json') // Replace with your driver's API endpoint
+                fetch('https://alitarique.github.io/Sticky-Notes/list-drivers.json') // Replace with your driver's API endpoint
                     .then(response => response.json())
                     .then(driverData => {
                         generateTable(driverData);
