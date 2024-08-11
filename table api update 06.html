@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sticky Notes with Bootstrap Table</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .sticky-notes-container {
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 2px dashed #ddd;
+            position: relative;
+            height: 200px; /* Adjust height as needed */
+            overflow: auto;
+            display: flex;
+            flex-wrap: wrap; /* Allows wrapping of sticky notes */
+            gap: 10px; /* Space between notes */
+        }
+
+        .sticky-note {
+            border: 1px solid #f0c340;
+            border-radius: 4px;
+            padding: 10px;
+            cursor: move;
+            position: relative;
+            width: 120px; /* Adjust as needed */
+            height: auto;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            word-wrap: break-word;
+            z-index: 1000; /* Ensure notes are above other content */
+        }
+
+        .status-tomorrow {
+            background-color: #28a745; /* Green for "tomorrow" */
+            color: white;
+        }
+
+        .status-default {
+            background-color: #f9f79f; /* Default yellow */
+            color: black;
+        }
+
+        .table-bordered {
+            border: 2px solid #ddd;
+        }
+
+        .table-bordered td {
+            border: 1px dotted #ddd;
+            position: relative;
+            height: 150px; /* Adjust cell height as needed */
+            width: 150px; /* Adjust cell width as needed */
+        }
+
+        .drag-over {
+            border: 2px dashed #000;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <h1 class="mb-4">Sticky Notes with Bootstrap Table</h1>
+        
+        <!-- Sticky Notes Container -->
+        <div class="sticky-notes-container" id="sticky-notes-container">
+            <!-- Sticky notes will be appended here -->
+        </div>
+        
+        <!-- Table -->
+        <table class="table table-bordered" id="sticky-table">
+            <thead>
+                <tr>
+                    <th>Cell 1</th>
+                    <th>Cell 2</th>
+                    <th>Cell 3</th>
+                    <th>Cell 4</th>
+                    <th>Cell 5</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td id="cell1" class="note-container"></td>
+                    <td id="cell2" class="note-container"></td>
+                    <td id="cell3" class="note-container"></td>
+                    <td id="cell4" class="note-container"></td>
+                    <td id="cell5" class="note-container"></td>
+                </tr>
+                <tr>
+                    <td id="cell6" class="note-container"></td>
+                    <td id="cell7" class="note-container"></td>
+                    <td id="cell8" class="note-container"></td>
+                    <td id="cell9" class="note-container"></td>
+                    <td id="cell10" class="note-container"></td>
+                </tr>
+                <tr>
+                    <td id="cell11" class="note-container"></td>
+                    <td id="cell12" class="note-container"></td>
+                    <td id="cell13" class="note-container"></td>
+                    <td id="cell14" class="note-container"></td>
+                    <td id="cell15" class="note-container"></td>
+                </tr>
+                <tr>
+                    <td id="cell16" class="note-container"></td>
+                    <td id="cell17" class="note-container"></td>
+                    <td id="cell18" class="note-container"></td>
+                    <td id="cell19" class="note-container"></td>
+                    <td id="cell20" class="note-container"></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.0.7/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const stickyNotesContainer = document.querySelector('#sticky-notes-container');
+            const tableCells = document.querySelectorAll('.note-container');
+
+            // Fetch notes data from external API
+            function fetchNotes() {
+                fetch('/data.json') // Replace with your API endpoint
+                    .then(response => response.json())
+                    .then(notesData => {
+                        generateStickyNotes(notesData);
+                    })
+                    .catch(error => {
+                        console.error('Error fetching notes data:', error);
+                    });
+            }
+
+            // Generate sticky notes
+            function generateStickyNotes(notes) {
+                stickyNotesContainer.innerHTML = ''; // Clear existing notes
+
+                notes.forEach(note => {
+                    const noteDiv = document.createElement('div');
+                    noteDiv.className = 'sticky-note';
+                    noteDiv.draggable = true;
+                    noteDiv.dataset.id = note.id;
+                    noteDiv.innerHTML = `
+                        <strong>Status:</strong> ${note.status}<br>
+                        <strong>Description:</strong> ${note.description}
+                    `;
+
+                    // Apply status-based styling
+                    if (note.status === 'tomorrow') {
+                        noteDiv.classList.add('status-tomorrow');
+                    } else {
+                        noteDiv.classList.add('status-default');
+                    }
+
+                    // Set default or saved position
+                    const savedPosition = getSavedPosition(note.id);
+                    if (savedPosition) {
+                        noteDiv.style.top = `${savedPosition.top}px`;
+                        noteDiv.style.left = `${savedPosition.left}px`;
+                        document.querySelector(`#${savedPosition.cellId}`).appendChild(noteDiv);
+                    } else {
+                        // Append note to the container in a row
+                        stickyNotesContainer.appendChild(noteDiv);
+                    }
+
+                    // Add drag and drop functionality
+                    noteDiv.addEventListener('dragstart', (e) => {
+                        e.dataTransfer.setData('text/plain', e.target.dataset.id);
+                        e.dataTransfer.effectAllowed = 'move';
+                        e.target.style.zIndex = 1000; // Bring note to the front
+                    });
+
+                    noteDiv.addEventListener('dragend', (e) => {
+                        e.target.style.zIndex = ''; // Reset z-index after drag
+                    });
+                });
+
+                // Add drag and drop functionality to table cells
+                tableCells.forEach(cell => {
+                    cell.addEventListener('dragover', (e) => {
+                        e.preventDefault();
+                        e.target.classList.add('drag-over');
+                    });
+
+                    cell.addEventListener('dragleave', (e) => {
+                        e.target.classList.remove('drag-over');
+                    });
+
+                    cell.addEventListener('drop', (e) => {
+                        e.preventDefault();
+                        e.target.classList.remove('drag-over');
+
+                        const noteId = e.dataTransfer.getData('text/plain');
+                        const note = document.querySelector(`.sticky-note[data-id="${noteId}"]`);
+
+                        if (note) {
+                            const cellRect = e.target.getBoundingClientRect();
+                            const noteRect = note.getBoundingClientRect();
+
+                            // Position the note within the table cell
+                            const offsetX = e.clientX - cellRect.left - (noteRect.width / 2);
+                            const offsetY = e.clientY - cellRect.top - (noteRect.height / 2);
+
+                            note.style.left = `${offsetX}px`;
+                            note.style.top = `${offsetY}px`;
+
+                            // Remove existing note from cell if present
+                            const existingNote = e.target.querySelector('.sticky-note');
+                            if (existingNote) {
+                                existingNote.remove();
+                            }
+
+                            // Append note to the cell
+                            e.target.appendChild(note);
+
+                            // Save new position
+                            savePosition(noteId, offsetY, offsetX, e.target.id);
+                        }
+                    });
+                });
+
+                // Add drag and drop functionality to sticky notes container
+                stickyNotesContainer.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    e.target.classList.add('drag-over');
+                });
+
+                stickyNotesContainer.addEventListener('dragleave', (e) => {
+                    e.target.classList.remove('drag-over');
+                });
+
+                stickyNotesContainer.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    e.target.classList.remove('drag-over');
+
+                    const noteId = e.dataTransfer.getData('text/plain');
+                    const note = document.querySelector(`.sticky-note[data-id="${noteId}"]`);
+
+                    if (note) {
+                        const containerRect = stickyNotesContainer.getBoundingClientRect();
+                        const noteRect = note.getBoundingClientRect();
+
+                        // Position the note within the sticky notes container
+                        const offsetX = e.clientX - containerRect.left - (noteRect.width / 2);
+                        const offsetY = e.clientY - containerRect.top - (noteRect.height / 2);
+
+                        note.style.left = `${offsetX}px`;
+                        note.style.top = `${offsetY}px`;
+
+                        // Append note back to the container
+                        stickyNotesContainer.appendChild(note);
+
+                        // Save new position
+                        savePosition(noteId, offsetY, offsetX, 'sticky-notes-container');
+                    }
+                });
+            }
+
+            // Save note position to localStorage
+            function savePosition(id, top, left, cellId) {
+                const savedPositions = JSON.parse(localStorage.getItem('stickyNotesPositions') || '{}');
+                savedPositions[id] = { top, left, cellId };
+                localStorage.setItem('stickyNotesPositions', JSON.stringify(savedPositions));
+            }
+
+            // Get saved position from localStorage
+            function getSavedPosition(id) {
+                const savedPositions = JSON.parse(localStorage.getItem('stickyNotesPositions') || '{}');
+                return savedPositions[id];
+            }
+
+            // Load saved positions and fetch notes
+            function loadPositions() {
+                const savedPositions = JSON.parse(localStorage.getItem('stickyNotesPositions') || '{}');
+                Object.keys(savedPositions).forEach(id => {
+                    const saved = savedPositions[id];
+                    const note = document.querySelector(`.sticky-note[data-id="${id}"]`);
+                    if (note) {
+                        note.style.top = `${saved.top}px`;
+                        note.style.left = `${saved.left}px`;
+
+                        const cell = document.querySelector(`#${saved.cellId}`);
+                        if (cell) {
+                            cell.appendChild(note);
+                        } else {
+                            stickyNotesContainer.appendChild(note); // Default to main container if cell is not found
+                        }
+                    }
+                });
+            }
+
+            // Load positions and fetch notes
+            loadPositions();
+            fetchNotes();
+        });
+    </script>
+</body>
+</html>
