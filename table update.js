@@ -4,8 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const tableHeaderRow = document.querySelector('#table-header-row');
 
     function fetchNotes() {
-        return fetch('https://alitarique.github.io/Sticky-Notes/data.json
-/data.json') // Replace with your API endpoint
+        return fetch('/Sticky-Notes/data.json') // Replace with your API endpoint
             .then(response => response.json())
             .catch(error => {
                 console.error('Error fetching notes data:', error);
@@ -13,8 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function fetchDriverData() {
-        return fetch('https://alitarique.github.io/Sticky-Notes/data.json
-/list-drivers.json') // Replace with your driver's API endpoint
+        return fetch('/Sticky-Notes/list-drivers.json') // Replace with your driver's API endpoint
             .then(response => response.json())
             .catch(error => {
                 console.error('Error fetching driver data:', error);
@@ -22,8 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function fetchAdditionalData() {
-        return fetch('https://alitarique.github.io/Sticky-Notes/data.json
-/clients.json') // Replace with your new API endpoint
+        return fetch('/Sticky-Notes/clients.json') // Replace with your new API endpoint
             .then(response => response.json())
             .catch(error => {
                 console.error('Error fetching additional data:', error);
