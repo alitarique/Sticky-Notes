@@ -1,0 +1,57 @@
+        .sticky-notes-container {
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 2px dashed #ddd;
+            position: relative;
+            /* height: 200px; */
+            overflow: auto;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .sticky-note {
+            border: 1px solid #f0c340;
+            border-radius: 4px;
+            padding: 10px;
+            cursor: move;
+            position: relative;
+            width: 200px;
+            height: auto;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            word-wrap: break-word;
+            z-index: 1000;
+        }
+
+        .status-tomorrow {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .status-default {
+            background-color: #f9f79f;
+            color: black;
+        }
+
+        .table-bordered {
+            border: 2px solid #ddd;
+        }
+
+        .table-bordered td {
+            border: 1px dotted #ddd;
+            position: relative;
+            /* height: 150px; */
+            width: 150px;
+            vertical-align: middle;
+            text-align: center;
+        }
+
+        .drag-over {
+            border: 2px dashed #000;
+        }
+
+        .table-header {
+            text-transform: capitalize;
+        }
+    
