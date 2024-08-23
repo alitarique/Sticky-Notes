@@ -36,13 +36,15 @@
 
         .table-bordered {
             border: 2px solid #ddd;
+            border-collapse: collapse;
         }
 
         .table-bordered td {
             border: 1px dotted #ddd;
+            /* border: 1px solid #070707; */
             position: relative;
             /* height: 150px; */
-            width: 150px;
+            /* width: 150px; */
             vertical-align: middle;
             text-align: center;
         }
@@ -54,4 +56,16 @@
         .table-header {
             text-transform: capitalize;
         }
-    
+        
+        .header-bold
+        {
+            font-weight: bold;
+        }
+
+        .note-container{
+            height: 150px;
+            width: 150px;
+        }
+        /*.bottom-note-table .bottom-table{
+            border: 100px solid white;
+        }*/
