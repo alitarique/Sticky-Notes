@@ -40,7 +40,7 @@
     text-align: center;
     padding: 4px;
     font-size: 10px;
-    font-weight: bold;
+    /* font-weight: bold; */
     border-collapse: collapse;
 }
 
@@ -84,6 +84,6 @@
     padding: 1px;
     /* width: 1px; */
 }
-/* .table-bordered {
+ .table-bordered {
     border-collapse:separate;
-} */
+} 
