@@ -241,7 +241,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function addDragAndDropToCells() {
+    /*function addDragAndDropToCells() {
         const tableCells = document.querySelectorAll('.note-container');
     
         tableCells.forEach(cell => {
@@ -303,9 +303,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 removeNotePosition(noteId);
             }
         });
-    }
+    }*/
 
-    function saveNotePosition(noteId, cellId) {
+    //  old functions test
+    /*function saveNotePosition(noteId, cellId) {
         let positions = JSON.parse(localStorage.getItem('notePositions')) || {};
         const rect = document.querySelector(`#${cellId}`).getBoundingClientRect();
         positions[noteId] = {
@@ -325,11 +326,139 @@ document.addEventListener('DOMContentLoaded', () => {
         let positions = JSON.parse(localStorage.getItem('notePositions')) || {};
         delete positions[noteId];
         localStorage.setItem('notePositions', JSON.stringify(positions));
-    }
+    }*/
+
+
+        // new functions test
+        /*function saveNotePosition(noteId, cellId) {
+            let positions = JSON.parse(localStorage.getItem('notePositions')) || {};
+            positions[noteId] = { cellId };
+            localStorage.setItem('notePositions', JSON.stringify(positions));
+        }
+        
+        function getSavedPosition(noteId) {
+            const positions = JSON.parse(localStorage.getItem('notePositions'));
+            return positions ? positions[noteId] : null;
+        }
+        
+        function removeNotePosition(noteId) {
+            let positions = JSON.parse(localStorage.getItem('notePositions')) || {};
+            delete positions[noteId];
+            localStorage.setItem('notePositions', JSON.stringify(positions));
+        }*/
+
+            function addDragAndDropToCells() {
+                const tableCells = document.querySelectorAll('.note-container');
+            
+                tableCells.forEach(cell => {
+                    cell.addEventListener('dragover', (e) => {
+                        e.preventDefault();
+                        e.target.classList.add('drag-over');
+                    });
+            
+                    cell.addEventListener('dragleave', (e) => {
+                        e.target.classList.remove('drag-over');
+                    });
+            
+                    cell.addEventListener('drop', (e) => {
+                        e.preventDefault();
+                        e.target.classList.remove('drag-over');
+            
+                        const noteId = e.dataTransfer.getData('text/plain');
+                        const note = document.querySelector(`.bottom-sticky-note[data-id="${noteId}"]`);
+            
+                        if (note && e.target.classList.contains('note-container') && e.target.children.length === 0) {
+                            note.style.position = 'relative';
+                            note.style.left = '0';
+                            note.style.top = '0';
+                            note.style.width = '100%';
+                            note.style.height = '100%';
+            
+                            e.target.appendChild(note);
+            
+                            saveNotePosition(noteId, e.target.id);
+                        }
+                    });
+                });
+            
+                stickyNotesContainer.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    e.target.classList.add('drag-over');
+                });
+            
+                stickyNotesContainer.addEventListener('dragleave', (e) => {
+                    e.target.classList.remove('drag-over');
+                });
+            
+                stickyNotesContainer.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    e.target.classList.remove('drag-over');
+            
+                    const noteId = e.dataTransfer.getData('text/plain');
+                    const note = document.querySelector(`.bottom-sticky-note[data-id="${noteId}"]`);
+            
+                    if (note && e.target.id === stickyNotesContainer.id) {
+                        note.style.position = 'relative';
+                        note.style.left = '0';
+                        note.style.top = '0';
+                        note.style.width = '200px';
+                        note.style.height = '200px';
+            
+                        stickyNotesContainer.appendChild(note);
+                        removeNotePosition(noteId);
+                    }
+                });
+            }
+            
+            // Prevent dropping within another sticky note
+            document.addEventListener('dragover', (e) => {
+                if (e.target.classList.contains('bottom-sticky-note')) {
+                    e.preventDefault();
+                }
+            });
+            
+            document.addEventListener('drop', (e) => {
+                if (e.target.classList.contains('bottom-sticky-note')) {
+                    e.preventDefault();
+                }
+            });
+
+            // prevent on special note
+
+            document.addEventListener('dragover', (e) => {
+                if (e.target.classList.contains('bottom-note-section')) {
+                    e.preventDefault();
+                }
+            });
+            
+            document.addEventListener('drop', (e) => {
+                if (e.target.classList.contains('bottom-note-section')) {
+                    e.preventDefault();
+                }
+            });
+            
+            function saveNotePosition(noteId, cellId) {
+                let positions = JSON.parse(localStorage.getItem('notePositions')) || {};
+                positions[noteId] = { cellId };
+                localStorage.setItem('notePositions', JSON.stringify(positions));
+            }
+            
+            function getSavedPosition(noteId) {
+                const positions = JSON.parse(localStorage.getItem('notePositions'));
+                return positions ? positions[noteId] : null;
+            }
+            
+            function removeNotePosition(noteId) {
+                let positions = JSON.parse(localStorage.getItem('notePositions')) || {};
+                delete positions[noteId];
+                localStorage.setItem('notePositions', JSON.stringify(positions));
+            }
+            
+            fetchAndGenerateNotes();
     
     
 
-    fetchAndGenerateNotes();
+    // fetchAndGenerateNotes();
     
 
 
