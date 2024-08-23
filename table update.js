@@ -90,6 +90,18 @@ document.addEventListener('DOMContentLoaded', () => {
                     // <p class="address">${receiverStreetAddress}</p>
 
                 // <div class="bottom-sticky-note">
+
+
+                /*<tr>
+                                    <td>Marchandise</td>
+                                    <td>Poids</td>
+                                    <td>Grandeur Camion</td>
+                                </tr>*/
+
+
+                                // <td class="header-bold">N° CLIENT</td>
+                                //     <td class="header-bold">DIVERS</td>
+                                //     <td class="header-bold">PRIX</td>
             const noteDiv = document.createElement('div');
             noteDiv.className = 'bottom-sticky-note';
             noteDiv.draggable = true;
@@ -109,24 +121,26 @@ document.addEventListener('DOMContentLoaded', () => {
                                     <td>Driver name</td>
                                 </tr>
                                 <tr>
-                                    <td>N° CLIENT</td>
-                                    <td>DIVERS</td>
-                                    <td>PRIX</td>
+                                    
+                                    <th>N° CLIENT</th>
+                                    <th>DIVERS</th>
+                                    <th>PRIX</th>
                                 </tr>
                                 <tr>
                                     <td>${waybill}</td>
                                     <td>${note.id}</td>
-                                    <td>price</td>
-                                </tr>
-                                <tr>
-                                    <td>Marchandise</td>
-                                    <td>Poids</td>
-                                    <td>Grandeur Camion</td>
+                                    <td>560</td>
                                 </tr>
                                 <tr>
                                     <td>merchandise</td>
                                     <td>weight</td>
+                                    <td></td>
+                                </tr>
+
+                                <tr>
+                                    <td></td>
                                     <td>truck size</td>
+                                    <td></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -206,7 +220,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         drivers.forEach((driver, index) => {
             const th = document.createElement('th');
-            th.textContent = `${driver.full_name}\n (${driver.phone})`;
+            // th.textContent = `${driver.full_name}\n (${driver.phone})`;
+            th.textContent = `${driver.full_name}\n(${driver.phone})`;
             th.classList.add('table-header');
             tableHeaderRow.appendChild(th);
         });
@@ -250,7 +265,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     note.style.position = 'relative';
                     note.style.left = '0';
                     note.style.top = '0';
-                    note.style.width = '100%';
+                    // note.style.width = '100%';
                     note.style.height = '100%';
     
                     e.target.innerHTML = ''; // Clear existing note in cell if any
